@@ -364,3 +364,6 @@ class ONVIFCamera(object):
 
     def create_receiver_service(self, from_template=True):
         return self.create_onvif_service('receiver', from_template)
+
+    def create_notification_service(self, from_template=True):
+        return self.create_onvif_service('notifications', from_template)
