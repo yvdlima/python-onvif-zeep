@@ -338,43 +338,43 @@ class ONVIFCamera(object):
 
     def create_devicemgmt_service(self, from_template=True):
         # The entry point for devicemgmt service is fixed.
-        return self.create_onvif_service('devicemgmt', from_template)
+        return self.create_onvif_service('devicemgmt')
 
-    def create_media_service(self, from_template=True):
-        return self.create_onvif_service('media', from_template)
+    def create_media_service(self):
+        return self.create_onvif_service('media')
 
-    def create_ptz_service(self, from_template=True):
-        return self.create_onvif_service('ptz', from_template)
+    def create_ptz_service(self):
+        return self.create_onvif_service('ptz')
 
-    def create_imaging_service(self, from_template=True):
-        return self.create_onvif_service('imaging', from_template)
+    def create_imaging_service(self):
+        return self.create_onvif_service('imaging')
 
-    def create_deviceio_service(self, from_template=True):
-        return self.create_onvif_service('deviceio', from_template)
+    def create_deviceio_service(self):
+        return self.create_onvif_service('deviceio')
 
-    def create_events_service(self, from_template=True):
-        return self.create_onvif_service('events', from_template)
+    def create_events_service(self):
+        return self.create_onvif_service('events')
 
-    def create_analytics_service(self, from_template=True):
-        return self.create_onvif_service('analytics', from_template)
+    def create_analytics_service(self):
+        return self.create_onvif_service('analytics')
 
     def create_recording_service(self, from_template=True):
-        return self.create_onvif_service('recording', from_template)
+        return self.create_onvif_service('recording')
 
     def create_search_service(self, from_template=True):
-        return self.create_onvif_service('search', from_template)
+        return self.create_onvif_service('search')
 
     def create_replay_service(self, from_template=True):
-        return self.create_onvif_service('replay', from_template)
+        return self.create_onvif_service('replay')
 
     def create_pullpoint_service(self, from_template=True):
-        return self.create_onvif_service('pullpoint', from_template, portType='PullPointSubscription')
+        return self.create_onvif_service('pullpoint', portType='PullPointSubscription')
 
     def create_receiver_service(self, from_template=True):
-        return self.create_onvif_service('receiver', from_template)
+        return self.create_onvif_service('receiver')
 
     def create_notification_service(self, from_template=True):
-        return self.create_onvif_service('notification', from_template)
+        return self.create_onvif_service('notification')
 
     def create_subscription_service(self, from_template=True):
-        return self.create_onvif_service('subscription', from_template)
+        return self.create_onvif_service('subscription')
