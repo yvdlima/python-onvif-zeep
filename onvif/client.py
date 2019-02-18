@@ -305,7 +305,15 @@ class ONVIFCamera(object):
 
         return xaddr, wsdlpath, binding_name
 
-    def create_onvif_service(self, name, from_template=True, portType=None):
+    def create_onvif_service(self, name, portType=None):
+        """
+        Create ONVIF service client.
+
+        :param name: service name, should be present as a key within
+        the `SERVICES` dictionary declared in onvif.definition
+        :param portType:
+        :return:
+        """
         '''Create ONVIF service client'''
 
         name = name.lower()
@@ -367,3 +375,6 @@ class ONVIFCamera(object):
 
     def create_notification_service(self, from_template=True):
         return self.create_onvif_service('notification', from_template)
+
+    def create_subscription_service(self, from_template=True):
+        return self.create_onvif_service('subscription', from_template)

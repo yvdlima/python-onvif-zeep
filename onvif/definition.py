@@ -8,6 +8,7 @@ SERVICES = {
         'events'       : {'ns': 'http://www.onvif.org/ver10/events/wsdl',    'wsdl': 'events.wsdl',     'binding' : 'EventBinding'},
         'pullpoint'    : {'ns': 'http://www.onvif.org/ver10/events/wsdl',    'wsdl': 'events.wsdl',     'binding' : 'PullPointSubscriptionBinding'},
         'notification' : {'ns': 'http://www.onvif.org/ver10/events/wsdl',    'wsdl': 'events.wsdl',     'binding' : 'NotificationProducerBinding'},
+        'subscription' : {'ns': 'http://www.onvif.org/ver10/events/wsdl',    'wsdl': 'events.wsdl',     'binding' : 'SubscriptionManagerBinding'},
         'analytics'    : {'ns': 'http://www.onvif.org/ver20/analytics/wsdl', 'wsdl': 'analytics.wsdl',  'binding' : 'AnalyticsEngineBinding'},
         'recording'    : {'ns': 'http://www.onvif.org/ver10/recording/wsdl', 'wsdl': 'recording.wsdl',  'binding' : 'RecordingBinding'},
         'search'       : {'ns': 'http://www.onvif.org/ver10/search/wsdl',    'wsdl': 'search.wsdl',     'binding' : 'SearchBinding'},
