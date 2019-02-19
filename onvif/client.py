@@ -322,7 +322,6 @@ class ONVIFCamera(object):
             service = ONVIFService(xaddr, self.user, self.passwd,
                                    wsdl_file, self.encrypt,
                                    self.daemon, no_cache=self.no_cache,
-                                   portType=portType,
                                    dt_diff=self.dt_diff,
                                    binding_name=binding_name,
                                    transport=self.transport)
