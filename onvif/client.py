@@ -1,12 +1,9 @@
 from __future__ import print_function, division
 __version__ = '0.0.1'
+import datetime as dt
+import logging
 import os.path
 from threading import Thread, RLock
-
-import logging
-logger = logging.getLogger('onvif')
-logging.basicConfig(level=logging.INFO)
-logging.getLogger('zeep.client').setLevel(logging.CRITICAL)
 
 from zeep.client import Client, CachingClient, Settings
 from zeep.wsse.username import UsernameToken
@@ -14,7 +11,12 @@ import zeep.helpers
 
 from onvif.exceptions import ONVIFError
 from onvif.definition import SERVICES
-import datetime as dt
+
+logger = logging.getLogger('onvif')
+logging.basicConfig(level=logging.INFO)
+logging.getLogger('zeep.client').setLevel(logging.CRITICAL)
+
+
 # Ensure methods to raise an ONVIFError Exception
 # when some thing was wrong
 def safe_func(func):
@@ -22,18 +24,17 @@ def safe_func(func):
         try:
             return func(*args, **kwargs)
         except Exception as err:
-            #print('Ouuups: err =', err, ', func =', func, ', args =', args, ', kwargs =', kwargs)
             raise ONVIFError(err)
     return wrapped
 
 
 class UsernameDigestTokenDtDiff(UsernameToken):
-    '''
+    """
     UsernameDigestToken class, with a time offset parameter that can be adjusted;
     This allows authentication on cameras without being time synchronized.
     Please note that using NTP on both end is the recommended solution,
     this should only be used in "safe" environments.
-    '''
+    """
     def __init__(self, user, passw, dt_diff=None, **kwargs):
         super().__init__(user, passw, **kwargs)
         self.dt_diff = dt_diff  # Date/time difference in datetime.timedelta
@@ -42,17 +43,15 @@ class UsernameDigestTokenDtDiff(UsernameToken):
         old_created = self.created
         if self.created is None:
             self.created = dt.datetime.utcnow()
-        #print('UsernameDigestTokenDtDiff.created: old = %s (type = %s), dt_diff = %s (type = %s)' % (self.created, type(self.created), self.dt_diff, type(self.dt_diff)), end='')
         if self.dt_diff is not None:
             self.created += self.dt_diff
-        #print('   new = %s' % self.created)
         result = super().apply(envelope, headers)
         self.created = old_created
         return result
 
 
 class ONVIFService(object):
-    '''
+    """
     Python Implemention for ONVIF Service.
     Services List:
         DeviceMgmt DeviceIO Event AnalyticsDevice Display Imaging Media
@@ -80,12 +79,12 @@ class ONVIFService(object):
         params = device_service.create_type('SetHostname')
         params.Hostname = 'NewHostName'
         device_service.SetHostname(params)
-    '''
+    """
 
     @safe_func
     def __init__(self, xaddr, user, passwd, url,
                  encrypt=True, daemon=False, zeep_client=None, no_cache=False,
-                 portType=None, dt_diff=None, binding_name='', transport=None):
+                 dt_diff=None, binding_name='', transport=None):
         if not os.path.isfile(url):
             raise ONVIFError('%s doesn`t exist!' % url)
 
@@ -94,7 +93,6 @@ class ONVIFService(object):
         wsse = UsernameDigestTokenDtDiff(user, passwd, dt_diff=dt_diff, use_digest=encrypt)
         # Create soap client
         if not zeep_client:
-            #print(self.url, self.xaddr)
             ClientType = Client if no_cache else CachingClient
             settings = Settings()
             settings.strict = False
@@ -139,7 +137,6 @@ class ONVIFService(object):
                 try:
                     ret = func(**params)
                 except TypeError:
-                    #print('### func =', func, '### params =', params, '### type(params) =', type(params))
                     ret = func(params)
                 if callable(callback):
                     callback(ret)
@@ -154,13 +151,13 @@ class ONVIFService(object):
         return wrapped
 
     def __getattr__(self, name):
-        '''
+        """
         Call the real onvif Service operations,
         See the official wsdl definition for the
         APIs detail(API name, request parameters,
         response parameters, parameter types, etc...)
-        '''
-        builtin =  name.startswith('__') and name.endswith('__')
+        """
+        builtin = name.startswith('__') and name.endswith('__')
         if builtin:
             return self.__dict__[name]
         else:
@@ -168,9 +165,9 @@ class ONVIFService(object):
 
 
 class ONVIFCamera(object):
-    '''
-    Python Implemention ONVIF compliant device
-    This class integrates onvif services
+    """
+    Python Implementation of an ONVIF compliant device.
+    This class integrates ONVIF services
 
     adjust_time parameter allows authentication on cameras without being time synchronized.
     Please note that using NTP on both end is the recommended solution,
@@ -183,18 +180,20 @@ class ONVIFCamera(object):
     >>> media_service = mycam.create_media_service()
     >>> ptz_service = mycam.create_ptz_service()
     # Get PTZ Configuration:
-    >>> mycam.ptz.GetConfiguration()
-    # Another way:
     >>> ptz_service.GetConfiguration()
-    '''
+    """
 
     # Class-level variables
     services_template = {'devicemgmt': None, 'ptz': None, 'media': None,
-                         'imaging': None, 'events': None, 'analytics': None }
+                         'imaging': None, 'events': None, 'analytics': None}
     use_services_template = {'devicemgmt': True, 'ptz': True, 'media': True,
-                         'imaging': True, 'events': True, 'analytics': True }
-    def __init__(self, host, port ,user, passwd, wsdl_dir=os.path.join(os.path.dirname(os.path.dirname(__file__)), "wsdl"),
-                 encrypt=True, daemon=False, no_cache=False, adjust_time=False, transport=None):
+                             'imaging': True, 'events': True, 'analytics': True}
+
+    def __init__(self, host, port, user, passwd,
+                 wsdl_dir=os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                                       "wsdl"),
+                 encrypt=True, daemon=False, no_cache=False, adjust_time=False,
+                 transport=None):
         os.environ.pop('http_proxy', None)
         os.environ.pop('https_proxy', None)
         self.host = host
@@ -209,7 +208,7 @@ class ONVIFCamera(object):
         self.transport = transport
 
         # Active service client container
-        self.services = { }
+        self.services = {}
         self.services_lock = RLock()
 
         # Set xaddrs
@@ -220,16 +219,16 @@ class ONVIFCamera(object):
     def update_xaddrs(self):
         # Establish devicemgmt service first
         self.dt_diff = None
-        self.devicemgmt  = self.create_devicemgmt_service()
-        if self.adjust_time :
+        self.devicemgmt = self.create_devicemgmt_service()
+        if self.adjust_time:
             cdate = self.devicemgmt.GetSystemDateAndTime().UTCDateTime
-            cam_date = dt.datetime(cdate.Date.Year, cdate.Date.Month, cdate.Date.Day, cdate.Time.Hour, cdate.Time.Minute, cdate.Time.Second)
+            cam_date = dt.datetime(cdate.Date.Year, cdate.Date.Month, cdate.Date.Day,
+                                   cdate.Time.Hour, cdate.Time.Minute, cdate.Time.Second)
             self.dt_diff = cam_date - dt.datetime.utcnow()
             self.devicemgmt.dt_diff = self.dt_diff
-            #self.devicemgmt.set_wsse()
-            self.devicemgmt  = self.create_devicemgmt_service()
+            self.devicemgmt = self.create_devicemgmt_service()
         # Get XAddr of services on the device
-        self.xaddrs = { }
+        self.xaddrs = {}
         capabilities = self.devicemgmt.GetCapabilities({'Category': 'All'})
         for name in capabilities:
             capability = capabilities[name]
@@ -243,8 +242,9 @@ class ONVIFCamera(object):
         with self.services_lock:
             try:
                 self.event = self.create_events_service()
-                self.xaddrs['http://www.onvif.org/ver10/events/wsdl/PullPointSubscription'] = self.event.CreatePullPointSubscription().SubscriptionReference.Address._value_1
-            except:
+                self.xaddrs['http://www.onvif.org/ver10/events/wsdl/PullPointSubscription'] = \
+                    self.event.CreatePullPointSubscription().SubscriptionReference.Address._value_1
+            except Exception:
                 pass
 
     def update_url(self, host=None, port=None):
@@ -268,14 +268,13 @@ class ONVIFCamera(object):
                 self.services[sname].ws_client.set_options(location=xaddr)
 
     def get_service(self, name, create=True):
-        service = None
         service = getattr(self, name.lower(), None)
         if not service and create:
             return getattr(self, 'create_%s_service' % name.lower())()
         return service
 
     def get_definition(self, name, portType=None):
-        '''Returns xaddr and wsdl of specified service'''
+        """Returns xaddr and wsdl of specified service"""
         # Check if the service is supported
         if name not in SERVICES:
             raise ONVIFError('Unknown service %s' % name)
@@ -301,7 +300,7 @@ class ONVIFCamera(object):
         # Get other XAddr
         xaddr = self.xaddrs.get(ns)
         if not xaddr:
-            raise ONVIFError('Device doesn`t support service: %s' % name)
+            raise ONVIFError("Device doesn't support service: %s" % name)
 
         return xaddr, wsdlpath, binding_name
 
@@ -310,11 +309,11 @@ class ONVIFCamera(object):
         Create ONVIF service client.
 
         :param name: service name, should be present as a key within
-        the `SERVICES` dictionary declared in onvif.definition
+        the `SERVICES` dictionary declared within the `onvif.definition` module
         :param portType:
         :return:
         """
-        '''Create ONVIF service client'''
+        """Create ONVIF service client"""
 
         name = name.lower()
         xaddr, wsdl_file, binding_name = self.get_definition(name, portType)
@@ -336,7 +335,7 @@ class ONVIFCamera(object):
 
         return service
 
-    def create_devicemgmt_service(self, from_template=True):
+    def create_devicemgmt_service(self):
         # The entry point for devicemgmt service is fixed.
         return self.create_onvif_service('devicemgmt')
 
@@ -358,23 +357,23 @@ class ONVIFCamera(object):
     def create_analytics_service(self):
         return self.create_onvif_service('analytics')
 
-    def create_recording_service(self, from_template=True):
+    def create_recording_service(self):
         return self.create_onvif_service('recording')
 
-    def create_search_service(self, from_template=True):
+    def create_search_service(self):
         return self.create_onvif_service('search')
 
-    def create_replay_service(self, from_template=True):
+    def create_replay_service(self):
         return self.create_onvif_service('replay')
 
-    def create_pullpoint_service(self, from_template=True):
+    def create_pullpoint_service(self):
         return self.create_onvif_service('pullpoint', portType='PullPointSubscription')
 
-    def create_receiver_service(self, from_template=True):
+    def create_receiver_service(self):
         return self.create_onvif_service('receiver')
 
-    def create_notification_service(self, from_template=True):
+    def create_notification_service(self):
         return self.create_onvif_service('notification')
 
-    def create_subscription_service(self, from_template=True):
+    def create_subscription_service(self):
         return self.create_onvif_service('subscription')
